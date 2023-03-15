@@ -1,147 +1,153 @@
 import 'package:flutter/material.dart';
+import '../widgets/to_do_item.dart';
+import '../model/tasks.dart';
 
-class Home extends StatelessWidget {
-  const Home({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'To Do List',
-      theme: ThemeData(
-        primarySwatch: Colors.blueGrey,
-      ),
-      home: const MyHomePage(title: 'To Do List'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-  final String title;
+class Home extends StatefulWidget {
+  Home({Key? key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<Home> createState() => _HomeState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  final List<String> _tasks = [];
-
-  final TextEditingController _controller = TextEditingController();
-
-  void _addTask(String task) {
-    setState(() {
-      _tasks.add(task);
-    });
-  }
-
-  void _updateTask(int index, String task) {
-    setState(() {
-      _tasks[index] = task;
-    });
-  }
-
-  void _deleteTask(int index) {
-    setState(() {
-      _tasks.removeAt(index);
-    });
-  }
-
-  void _toggleTask(int index) {
-    setState(() {
-      String task = _tasks[index];
-      if (task.startsWith('✓ ')) {
-        task = task.substring(2);
-      } else {
-        task = '✓ $task';
-      }
-      _updateTask(index, task);
-    });
-  }
+class _HomeState extends State<Home> {
+  final taskList = Tasks.tasksList();
+  final _taskController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: ListView.builder(
-        itemCount: _tasks.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Dismissible(
-            key: Key(_tasks[index]),
-            onDismissed: (direction) {
-              _deleteTask(index);
-            },
-            child: ListTile(
-              title: Text(
-                _tasks[index],
-                style: _tasks[index].startsWith('✓ ')
-                    ? const TextStyle(decoration: TextDecoration.lineThrough)
-                    : null,
-              ),
-              onTap: () => _toggleTask(index),
-              onLongPress: () {
-                _controller.text = _tasks[index];
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Edit Task'),
-                      content: TextField(
-                        controller: _controller,
+      backgroundColor: Colors.blueGrey[100],
+      appBar: _buildAppBar(),
+      body: Stack(
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Column(
+              children: [
+                searchbox(),
+                Expanded(
+                  child: ListView(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(top: 50, bottom: 20),
+                        child: Text(
+                          'Tasks',
+                          style: TextStyle(
+                              fontSize: 30, fontWeight: FontWeight.w500),
+                        ),
                       ),
-                      actions: [
-                        TextButton(
-                          child: const Text('Cancel'),
-                          onPressed: () => Navigator.pop(context),
+                      for (Tasks taskk in taskList)
+                        ToDoItems(
+                          task: taskk,
+                          onTaskChange: _handleTaskChange,
                         ),
-                        TextButton(
-                          child: const Text('Update'),
-                          onPressed: () {
-                            _updateTask(index, _controller.text);
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
+                    ],
+                  ),
+                )
+              ],
             ),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Add Task'),
-                content: TextField(
-                  controller: _controller,
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                      margin: EdgeInsets.only(bottom: 20, right: 20, left: 20),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: const [
+                          BoxShadow(
+                              color: Colors.grey,
+                              offset: Offset(0.0, 0.0),
+                              blurRadius: 10.0,
+                              spreadRadius: 0.0),
+                        ],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: TextField(
+                        controller: _taskController,
+                        decoration: InputDecoration(
+                          hintText: 'Add a new task',
+                          border: InputBorder.none,
+                        ),
+                      )),
                 ),
-                actions: [
-                  TextButton(
-                    child: const Text('Cancel'),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  TextButton(
-                    child: const Text('Add'),
-                    onPressed: () {
-                      _addTask(_controller.text);
-                      _controller.clear();
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              );
-            },
-          );
-        },
-        tooltip: 'Add Task',
-        child: const Icon(Icons.add),
+                Container(
+                    margin: EdgeInsets.only(bottom: 20, right: 20),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _addTask(_taskController.text);
+                      },
+                      child: Icon(Icons.add),
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.teal,
+                        padding: EdgeInsets.all(20),
+                      ),
+                    )),
+              ],
+            ),
+          )
+        ],
       ),
     );
+  }
+
+  void _handleTaskChange(Tasks task) {
+    setState(() {
+      task.isDone = !task.isDone;
+    });
+  }
+
+  void _addTask(String task) {
+    setState(() {
+      taskList.add(Tasks(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        tasksText: task,
+      ));
+    });
+    _taskController.clear();
+  }
+
+  Widget searchbox() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: TextField(
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.all(0),
+          hintText: 'Enter a task',
+          prefixIcon: Icon(
+            Icons.search,
+            color: Colors.black,
+            size: 20,
+          ),
+          prefixIconConstraints: BoxConstraints(maxHeight: 20, minWidth: 25),
+          border: InputBorder.none,
+        ),
+      ),
+    );
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+        backgroundColor: Colors.blueGrey[700],
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              child: Text('To Do List'),
+            ),
+            IconButton(
+              onPressed: () {},
+              icon: Icon(Icons.menu),
+            ),
+          ],
+        ));
   }
 }
