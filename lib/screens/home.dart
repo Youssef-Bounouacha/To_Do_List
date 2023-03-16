@@ -12,9 +12,19 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final taskList = Tasks.tasksList();
   final _taskController = TextEditingController();
-
+  String _selectedFilter = 'all';
   @override
   Widget build(BuildContext context) {
+    List<Tasks> filteredTasks = [];
+
+    if (_selectedFilter == 'done') {
+      filteredTasks = taskList.where((task) => task.isDone).toList();
+    } else if (_selectedFilter == 'inProgress') {
+      filteredTasks = taskList.where((task) => !task.isDone).toList();
+    } else {
+      filteredTasks = taskList;
+    }
+    ;
     return Scaffold(
       backgroundColor: Colors.blueGrey[100],
       appBar: _buildAppBar(),
@@ -36,7 +46,7 @@ class _HomeState extends State<Home> {
                               fontSize: 30, fontWeight: FontWeight.w500),
                         ),
                       ),
-                      for (Tasks taskk in taskList)
+                      for (Tasks taskk in filteredTasks)
                         ToDoItems(
                           task: taskk,
                           onTaskChange: _handleTaskChange,
@@ -48,46 +58,49 @@ class _HomeState extends State<Home> {
             ),
           ),
           Align(
-            alignment: Alignment.bottomCenter,
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                      margin: EdgeInsets.only(bottom: 20, right: 20, left: 20),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: const [
-                          BoxShadow(
-                              color: Colors.grey,
-                              offset: Offset(0.0, 0.0),
-                              blurRadius: 10.0,
-                              spreadRadius: 0.0),
-                        ],
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: TextField(
+            alignment: Alignment.bottomRight,
+            child: Container(
+              margin: EdgeInsets.only(bottom: 16),
+              child: FloatingActionButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text('Add a new task'),
+                      content: TextField(
                         controller: _taskController,
                         decoration: InputDecoration(
-                          hintText: 'Add a new task',
-                          border: InputBorder.none,
+                          hintText: 'Enter task name',
                         ),
-                      )),
-                ),
-                Container(
-                    margin: EdgeInsets.only(bottom: 20, right: 20),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _addTask(_taskController.text);
-                      },
-                      child: Icon(Icons.add),
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.teal,
-                        padding: EdgeInsets.all(20),
                       ),
-                    )),
-              ],
+                      actions: [
+                        TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text('Cancel'),
+                            style: TextButton.styleFrom(
+                              primary: Colors.teal,
+                            )),
+                        ElevatedButton(
+                          onPressed: () {
+                            _addTask(_taskController.text);
+                            Navigator.pop(context);
+                          },
+                          child: Text('Add'),
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.teal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                backgroundColor: Colors.teal,
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(20.0), // set border radius
+                ),
+                child: Icon(Icons.add),
+              ),
             ),
           )
         ],
@@ -102,13 +115,15 @@ class _HomeState extends State<Home> {
   }
 
   void _addTask(String task) {
-    setState(() {
-      taskList.add(Tasks(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        tasksText: task,
-      ));
-    });
-    _taskController.clear();
+    if (task.isNotEmpty) {
+      setState(() {
+        taskList.add(Tasks(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          tasksText: task,
+        ));
+      });
+      _taskController.clear();
+    }
   }
 
   Widget searchbox() {
@@ -136,18 +151,35 @@ class _HomeState extends State<Home> {
 
   AppBar _buildAppBar() {
     return AppBar(
-        backgroundColor: Colors.blueGrey[700],
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              child: Text('To Do List'),
+      backgroundColor: Colors.blueGrey[700],
+      title: Text('To Do List'),
+      actions: [
+        DropdownButton<String>(
+          onChanged: (value) {
+            setState(() {
+              _selectedFilter = value!;
+            });
+          },
+          value: _selectedFilter,
+          dropdownColor: Colors.blueGrey[700],
+          alignment: Alignment.center,
+          iconEnabledColor: Colors.white,
+          items: [
+            DropdownMenuItem(
+              value: 'all',
+              child: Text('All', style: TextStyle(color: Colors.white)),
             ),
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.menu),
+            DropdownMenuItem(
+              value: 'done',
+              child: Text('Done', style: TextStyle(color: Colors.white)),
+            ),
+            DropdownMenuItem(
+              value: 'inProgress',
+              child: Text('In Progress', style: TextStyle(color: Colors.white)),
             ),
           ],
-        ));
+        ),
+      ],
+    );
   }
 }
