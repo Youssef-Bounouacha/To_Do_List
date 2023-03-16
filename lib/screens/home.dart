@@ -11,8 +11,16 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final taskList = Tasks.tasksList();
+  List<Tasks> _foundTasks = [];
   final _taskController = TextEditingController();
   String _selectedFilter = 'all';
+
+  @override
+  void initState() {
+    _foundTasks = taskList;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Tasks> filteredTasks = [];
@@ -41,11 +49,16 @@ class _HomeState extends State<Home> {
                       Container(
                         margin: EdgeInsets.only(top: 50, bottom: 20),
                         child: Text(
-                          'Tasks',
+                          'Tasks List',
                           style: TextStyle(
                               fontSize: 30, fontWeight: FontWeight.w500),
                         ),
                       ),
+                      for (Tasks tassk in _foundTasks)
+                        ToDoItems(
+                          task: tassk,
+                          onTaskChange: _handleTaskChange,
+                        ),
                       for (Tasks taskk in filteredTasks)
                         ToDoItems(
                           task: taskk,
@@ -108,6 +121,23 @@ class _HomeState extends State<Home> {
     );
   }
 
+  void _runFilter(String enteredKeyword) {
+    List<Tasks> results = [];
+    if (enteredKeyword.isEmpty) {
+      results = taskList;
+    } else {
+      results = taskList
+          .where((item) => item.tasksText!
+              .toLowerCase()
+              .contains(enteredKeyword.toLowerCase()))
+          .toList();
+    }
+
+    setState(() {
+      _foundTasks = results;
+    });
+  }
+
   void _handleTaskChange(Tasks task) {
     setState(() {
       task.isDone = !task.isDone;
@@ -134,6 +164,9 @@ class _HomeState extends State<Home> {
         borderRadius: BorderRadius.circular(20),
       ),
       child: TextField(
+        onChanged: (value) {
+          _runFilter(value);
+        },
         decoration: InputDecoration(
           contentPadding: EdgeInsets.all(0),
           hintText: 'Enter a task',
@@ -152,7 +185,7 @@ class _HomeState extends State<Home> {
   AppBar _buildAppBar() {
     return AppBar(
       backgroundColor: Colors.blueGrey[700],
-      title: Text('To Do List'),
+      title: Text('To Do App'),
       actions: [
         DropdownButton<String>(
           onChanged: (value) {
