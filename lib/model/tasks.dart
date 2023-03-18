@@ -7,10 +7,10 @@ class Tasks {
 
   static List<Tasks> tasksList() {
     return [
-      Tasks(id: '1', tasksText: 'Buy Milk', isDone: true),
-      Tasks(id: '2', tasksText: 'Buy Bread', isDone: true),
-      Tasks(id: '3', tasksText: 'Buy Beef', isDone: false),
-      Tasks(id: '4', tasksText: 'Buy Pork', isDone: false),
+      Tasks(id: '1', tasksText: 'Morning Excercise', isDone: false),
+      Tasks(id: '2', tasksText: 'Buy Groceries', isDone: true),
+      Tasks(id: '3', tasksText: 'Check Email', isDone: false),
+      Tasks(id: '4', tasksText: 'Team Meeting', isDone: false),
     ];
   }
 }

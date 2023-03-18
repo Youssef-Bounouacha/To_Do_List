@@ -32,7 +32,7 @@ class _HomeState extends State<Home> {
     } else {
       filteredTasks = taskList;
     }
-    ;
+
     return Scaffold(
       backgroundColor: Colors.blueGrey[100],
       appBar: _buildAppBar(),
@@ -54,16 +54,13 @@ class _HomeState extends State<Home> {
                               fontSize: 30, fontWeight: FontWeight.w500),
                         ),
                       ),
-                      for (Tasks tassk in _foundTasks)
+                      for (Tasks task in filteredTasks = _foundTasks)
                         ToDoItems(
-                          task: tassk,
+                          task: task,
+                          onUpdate: _updateTask,
+                          onDelete: _deleteTask,
                           onTaskChange: _handleTaskChange,
-                        ),
-                      for (Tasks taskk in filteredTasks)
-                        ToDoItems(
-                          task: taskk,
-                          onTaskChange: _handleTaskChange,
-                        ),
+                        )
                     ],
                   ),
                 )
@@ -135,6 +132,51 @@ class _HomeState extends State<Home> {
 
     setState(() {
       _foundTasks = results;
+    });
+  }
+
+  void _deleteTask(Tasks task) {
+    setState(() {
+      taskList.remove(task);
+    });
+  }
+
+  void _updateTask(Tasks task) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Update task'),
+        content: TextField(
+          controller: TextEditingController(text: task.tasksText),
+          onChanged: (text) {
+            task.tasksText = text;
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+            style: TextButton.styleFrom(primary: Colors.teal),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              _saveTask(task);
+              Navigator.pop(context);
+            },
+            child: Text('Save'),
+            style: ElevatedButton.styleFrom(primary: Colors.teal),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _saveTask(Tasks task) {
+    setState(() {
+      int index = taskList.indexWhere((t) => t.id == task.id);
+      if (index != -1) {
+        taskList[index] = task;
+      }
     });
   }
 
