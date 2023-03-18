@@ -1,14 +1,21 @@
-A new Flutter project.
+Flutter project.
+
+To-Do List App
+This is a simple To Do List application built using Flutter and Dart. It allows users to add, edit, and delete tasks on their to-do list.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+To run this application locally, you'll need to have Flutter and Dart installed on your machine. Once you've installed these dependencies, clone the repository and run the following command in your terminal to start the app:
 
-A few resources to get you started if this is your first Flutter project:
+Copy code
+flutter run
+Usage
+-To add a new task, click on the floating action button at the bottom right corner of the screen.
+-To update a task, long press on the task you want to update and make changes in the input field that appears.
+-To delete a task, swipe the task to the left, and tap the delete button that appears.
+-To mark a task as done, simply press on it. The task will be marked with a checkmark.
+-To filter tasks by all, done or in progress, click on the corresponding filter button on the top of the screen.
+-To search for a specific task, type the task name in the search text field. The app will filter the list of tasks according to the search query.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+##Contributing
+If you'd like to contribute to this project, feel free to submit a pull request. Contributions are always welcome!
