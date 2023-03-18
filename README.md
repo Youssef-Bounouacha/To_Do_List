@@ -17,5 +17,5 @@ Usage
 -To filter tasks by all, done or in progress, click on the corresponding filter button on the top of the screen.
 -To search for a specific task, type the task name in the search text field. The app will filter the list of tasks according to the search query.
 
-##Contributing
+## Contributing
 If you'd like to contribute to this project, feel free to submit a pull request. Contributions are always welcome!
